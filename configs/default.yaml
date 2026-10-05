@@ -1,0 +1,89 @@
+# Single source of truth for paths and hyperparameters. Override with: blurring <cmd> --config other.yaml
+seed: 42
+
+paths:
+  manifest: data/processed/manifest.json   # merged, split annotations (output of `prepare-data`)
+  artifacts_dir: artifacts                 # checkpoints, metrics, mined data
+  checkpoint: artifacts/model.pt
+
+data:
+  classes: [face, plate]                   # index 0 is reserved for background by the detector
+  sources:                                 # raw VOC datasets pulled from GitHub (see data/README.md)
+    - name: faces
+      images_dir: data/raw/faces/data/images
+      annots_dir: data/raw/faces/data/xml
+    - name: plates_train
+      images_dir: data/raw/plates/dataset/train/images
+      annots_dir: data/raw/plates/dataset/train/annots
+    - name: plates_valid
+      images_dir: data/raw/plates/dataset/valid/images
+      annots_dir: data/raw/plates/dataset/valid/annots
+  label_map:                               # raw VOC class name -> our class
+    with_mask: face
+    without_mask: face
+    mask_weared_incorrect: face
+    license-plate: plate
+  val_frac: 0.15
+  test_frac: 0.15
+
+augment:                                   # online, box-aware (chapter uses offline; see data/transforms.md)
+  hflip_prob: 0.5
+  crop_prob: 0.3
+  brightness: 0.25
+  contrast: 0.25
+  saturation: 0.25
+
+model:
+  arch: fasterrcnn_mobilenet_v3_large_fpn  # or fasterrcnn_resnet50_fpn_v2 (slower, more accurate)
+  pretrained: true                         # COCO weights; heads are replaced for our classes
+  fixed_size: [1024, 640]                  # [w, h] every image is resized to. One shape keeps Apple MPS from caching a
+                                           # compiled graph per input size (that cache grew ~1 GB / 15 s). null = use min/max_size
+  min_size: 640                            # only used when fixed_size is null
+  max_size: 1066
+  box_score_thresh: 0.05                   # keep low so AP sees the full precision/recall curve
+  box_nms_thresh: 0.5
+  detections_per_img: 100
+
+train:
+  epochs: 12
+  batch_size: 2                            # kept small so training fits comfortably on a 16 GB laptop
+  lr: 0.005                                # linear scaling: half the batch, half the LR
+  momentum: 0.9
+  weight_decay: 0.0001
+  warmup_iters: 200
+  lr_milestones: [8, 11]                   # epochs at which LR drops 10x
+  lambda_reg: 1.0                          # L = L_cls + lambda * L_reg
+  num_workers: 1
+  device: auto                             # auto | mps | cuda | cpu
+  epochs_per_process: 1                    # run each epoch in a fresh process (MPS leaks host RAM until exit); 0 = one process
+  mps_memory_fraction: 0.4                 # hard cap on Apple GPU memory (fraction of the recommended max); 0 = no cap
+
+eval:
+  precision_iou_thresholds: [0.1, 0.5, 0.7]  # the chapter's worked example
+  operating_score_thresh: 0.5
+
+inference:
+  score_thresh: 0.4                        # privacy favours recall: a lower threshold blurs more
+  nms_iou: 0.4
+  box_padding: 0.15                        # grow each box so edges of faces/plates are covered
+  blur: gaussian                           # gaussian | pixelate
+  batch_size: 4
+  num_workers: 2
+
+serving:                                   # HTTP API used by the React UI (web/)
+  host: 127.0.0.1
+  port: 8000
+  max_upload_mb: 20
+  max_side: 2048                           # larger uploads are downscaled first; keeps latency and memory bounded
+  cors_origins: ["http://localhost:5173", "http://127.0.0.1:5173"]
+  jpeg_quality: 92
+  backend: torch                           # torch (local, MPS/CUDA) | onnx (torch-free, used on Azure)
+  onnx_model: artifacts/model.onnx         # written by `blurring export-onnx`
+  onnx_threads: 0
+  onnx_proposals: 300                      # RPN proposals in the export; 1000 -> 300 cut memory, mAP50 -0.0005
+  static_dir: null                         # e.g. web/dist to serve the UI from the API process
+
+feedback:
+  hard_negative_score: 0.5                 # confident detections that match no ground truth
+  match_iou: 0.3
+  oversample: 3                            # copies of each hard example in the retraining manifest

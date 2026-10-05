@@ -1,0 +1,14 @@
+# root-anchored so src/blurring/data/ is never ignored
+/data/raw/
+/data/processed/
+/artifacts/
+/outputs/
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+/web/node_modules/
+/web/dist/
+/build/
+*.tsbuildinfo
