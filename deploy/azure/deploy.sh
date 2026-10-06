@@ -1,18 +1,18 @@
 #!/usr/bin/env bash
 # Deploy the torch-free package to Azure App Service on a Free (F1) Linux plan.
-# Creates the resource group / plan / web app if missing, then zip-deploys build/blurring-system-azure.zip.
+# Creates the resource group / plan / web app if missing, then zip-deploys build/streetshield-azure.zip.
 # Usage: SUBSCRIPTION=<id> ./deploy/azure/deploy.sh      (other variables below are optional overrides)
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 
 SUBSCRIPTION="${SUBSCRIPTION:?set SUBSCRIPTION to the Azure subscription id}"
 LOCATION="${LOCATION:-centralindia}"
-RESOURCE_GROUP="${RESOURCE_GROUP:-rg-blurring-system}"
-PLAN="${PLAN:-plan-blurring-system}"
+RESOURCE_GROUP="${RESOURCE_GROUP:-rg-streetshield}"
+PLAN="${PLAN:-plan-streetshield}"
 PLAN_RESOURCE_GROUP="${PLAN_RESOURCE_GROUP:-$RESOURCE_GROUP}"   # point at an existing plan's RG to reuse it
-APP="${APP:-blurring-system}"
+APP="${APP:-streetshield}"
 PYTHON_VERSION="${PYTHON_VERSION:-3.12}"
-ZIP="$ROOT/build/blurring-system-azure.zip"
+ZIP="$ROOT/build/streetshield-azure.zip"
 
 [ -f "$ZIP" ] || { echo "$ZIP missing: run deploy/azure/build_package.sh" >&2; exit 1; }
 az account set --subscription "$SUBSCRIPTION"
@@ -26,10 +26,10 @@ az webapp show -g "$RESOURCE_GROUP" -n "$APP" >/dev/null 2>&1 ||
   az webapp create -g "$RESOURCE_GROUP" -n "$APP" -p "$PLAN_ID" --runtime "PYTHON:$PYTHON_VERSION" -o none
 
 az webapp config set -g "$RESOURCE_GROUP" -n "$APP" -o none \
-  --startup-file "python -m uvicorn blurring.serving.asgi:app --app-dir src --host 0.0.0.0 --port 8000"
+  --startup-file "python -m uvicorn streetshield.serving.asgi:app --app-dir src --host 0.0.0.0 --port 8000"
 az webapp config appsettings set -g "$RESOURCE_GROUP" -n "$APP" -o none --settings \
   SCM_DO_BUILD_DURING_DEPLOYMENT=true \
-  BLURRING_CONFIG=configs/azure.yaml \
+  STREETSHIELD_CONFIG=configs/azure.yaml \
   WEBSITES_PORT=8000 \
   MALLOC_ARENA_MAX=2 \
   OMP_NUM_THREADS=1

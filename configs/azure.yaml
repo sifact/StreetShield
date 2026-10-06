@@ -1,5 +1,5 @@
 # Azure App Service (Free F1: 1 GB RAM, 1 GB disk, 60 CPU-min/day). Torch-free: ONNX Runtime backend.
-# Keys not listed fall back to the defaults in src/blurring/config.py.
+# Keys not listed fall back to the defaults in src/streetshield/config.py.
 data:
   classes: [face, plate]
 

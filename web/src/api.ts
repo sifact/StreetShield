@@ -1,4 +1,4 @@
-// Typed client for the FastAPI backend (src/blurring/serving). Shapes mirror serving/schemas.py.
+// Typed client for the FastAPI backend (src/streetshield/serving). Shapes mirror serving/schemas.py.
 
 export type BlurMethod = "gaussian" | "pixelate";
 

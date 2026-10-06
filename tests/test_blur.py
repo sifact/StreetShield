@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from blurring.inference import blur_regions
+from streetshield.inference import blur_regions
 
 
 @pytest.fixture

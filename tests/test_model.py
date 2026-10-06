@@ -1,8 +1,8 @@
 import torch
 
-from blurring.config import ModelConfig
-from blurring.modeling import build_detector, load_detector, save_checkpoint
-from blurring.training import combine_losses
+from streetshield.config import ModelConfig
+from streetshield.modeling import build_detector, load_detector, save_checkpoint
+from streetshield.training import combine_losses
 
 
 def _tiny_model():

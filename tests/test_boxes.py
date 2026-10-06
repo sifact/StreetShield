@@ -1,6 +1,6 @@
 import numpy as np
 
-from blurring.boxes import pad_and_clip, pairwise_iou, xywh_to_xyxy, xyxy_to_xywh
+from streetshield.boxes import pad_and_clip, pairwise_iou, xywh_to_xyxy, xyxy_to_xywh
 
 
 def test_xywh_roundtrip():

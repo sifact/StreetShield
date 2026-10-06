@@ -4,8 +4,8 @@ import numpy as np
 import torch
 from PIL import Image
 
-from blurring.config import AugmentConfig
-from blurring.data import (
+from streetshield.config import AugmentConfig
+from streetshield.data import (
     DetectionDataset,
     Record,
     TrainTransform,
@@ -16,8 +16,8 @@ from blurring.data import (
     parse_voc,
     save_manifest,
 )
-from blurring.data.manifest import split_records
-from blurring.data.transforms import crop_keeping_boxes, hflip
+from streetshield.data.manifest import split_records
+from streetshield.data.transforms import crop_keeping_boxes, hflip
 
 VOC = """<annotation><filename>{name}</filename><size><width>100</width><height>80</height></size>
 <object><name>with_mask</name><bndbox><xmin>10</xmin><ymin>10</ymin><xmax>30.5</xmax><ymax>40</ymax></bndbox></object>

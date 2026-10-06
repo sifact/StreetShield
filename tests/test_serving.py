@@ -5,10 +5,10 @@ import torch
 from fastapi.testclient import TestClient
 from PIL import Image
 
-from blurring.config import ModelConfig, load_config
-from blurring.inference import Predictor
-from blurring.modeling import build_detector
-from blurring.serving import BlurService, InvalidImageError, create_app, decode_image
+from streetshield.config import ModelConfig, load_config
+from streetshield.inference import Predictor
+from streetshield.modeling import build_detector
+from streetshield.serving import BlurService, InvalidImageError, create_app, decode_image
 
 
 @pytest.fixture(scope="module")

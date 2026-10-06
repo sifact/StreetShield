@@ -1,4 +1,4 @@
-# Street View Blurring System
+# StreetShield
 
 Detects human faces and license plates in street images and blurs them before they are published. This is the system from *Machine Learning System Design Interview*, Chapter 3 (see [PROJECT_BRIEF.md](PROJECT_BRIEF.md)).
 
@@ -9,21 +9,21 @@ Detects human faces and license plates in street images and blurs them before th
 ```bash
 uv sync --extra dev
 # download the data: see data/README.md
-uv run blurring prepare-data                              # merge + split -> data/processed/manifest.json
-uv run blurring train                                     # best val mAP@0.5 -> artifacts/model.pt
-uv run blurring evaluate --split test                     # -> artifacts/metrics_test.json
-uv run blurring blur --input street_photos/ --output blurred/   # + blurred/detections.jsonl
-uv run blurring mine --reports reports.jsonl              # -> artifacts/manifest_retrain.json
-uv run blurring serve                                     # HTTP API for the web UI
+uv run streetshield prepare-data                              # merge + split -> data/processed/manifest.json
+uv run streetshield train                                     # best val mAP@0.5 -> artifacts/model.pt
+uv run streetshield evaluate --split test                     # -> artifacts/metrics_test.json
+uv run streetshield blur --input street_photos/ --output blurred/   # + blurred/detections.jsonl
+uv run streetshield mine --reports reports.jsonl              # -> artifacts/manifest_retrain.json
+uv run streetshield serve                                     # HTTP API for the web UI
 uv run pytest
 ```
 
 ## Web UI
 
-A dark-theme React app (Vite + TypeScript, in `web/`) on top of a FastAPI backend (`src/blurring/serving/`).
+A dark-theme React app (Vite + TypeScript, in `web/`) on top of a FastAPI backend (`src/streetshield/serving/`).
 
 ```bash
-uv run blurring serve                      # API on http://127.0.0.1:8000 (loads artifacts/model.pt)
+uv run streetshield serve                      # API on http://127.0.0.1:8000 (loads artifacts/model.pt)
 cd web && npm install && npm run dev       # UI on http://localhost:5173 (proxies /api to :8000)
 ```
 
@@ -47,17 +47,17 @@ Uploads larger than 2048 px are downscaled first.
 
 The Free (F1) plan has 1 GB RAM, 1 GB disk and 60 CPU-minutes per day. PyTorch alone doesn't fit, so the deployment is torch-free:
 
-- **ONNX model.** `blurring export-onnx` writes `artifacts/model.onnx`. It matches PyTorch exactly on the test set (mAP@0.5 0.935, median box IoU 1.0).
+- **ONNX model.** `streetshield export-onnx` writes `artifacts/model.onnx`. It matches PyTorch exactly on the test set (mAP@0.5 0.935, median box IoU 1.0).
 - **Fewer proposals.** The export caps RPN proposals at 300 instead of 1000. That cut peak memory from ~835 MB to ~490 MB and changed test mAP@0.5 by −0.0005.
 - **One app.** The API serves the built UI from the same origin, using `configs/azure.yaml`.
 
 ```bash
-uv run blurring export-onnx                              # artifacts/model.onnx (+ .json sidecar)
-./deploy/azure/build_package.sh                          # build/blurring-system-azure.zip (~80 MB)
+uv run streetshield export-onnx                              # artifacts/model.onnx (+ .json sidecar)
+./deploy/azure/build_package.sh                          # build/streetshield-azure.zip (~80 MB)
 SUBSCRIPTION=<subscription-id> ./deploy/azure/deploy.sh  # RG + F1 plan + web app + zip deploy
 ```
 
-`deploy.sh` creates whatever is missing: resource group `rg-blurring-system`, plan `plan-blurring-system` (F1 Linux) and web app `blurring-system`.
+`deploy.sh` creates whatever is missing: resource group `rg-streetshield`, plan `plan-streetshield` (F1 Linux) and web app `streetshield`.
 - To reuse an existing plan, set `PLAN` and `PLAN_RESOURCE_GROUP`.
 - The free tier has no "Always On", so the first request after the app idles takes a while.
 
@@ -86,12 +86,12 @@ PyTorch's MPS backend leaks host RAM during detection training (measured at abou
 - `train.mps_memory_fraction` caps GPU memory.
 - `train.epochs_per_process: 1` runs each epoch in a fresh process that resumes from `artifacts/last_state.pt`.
 
-With these, the training worker peaks at about 4–6.5 GB instead of growing without limit. An interrupted run continues with `blurring train --resume`.
+With these, the training worker peaks at about 4–6.5 GB instead of growing without limit. An interrupted run continues with `streetshield train --resume`.
 
 ## Layout
 
 ```
-src/blurring/
+src/streetshield/
   config.py, cli.py, runtime.py, boxes.py   cross-cutting: config, CLI, seeds/device, box geometry
   data/        annotations (VOC -> Record), manifest (splits), transforms (box-aware aug), dataset, feedback (reports + hard negatives)
   modeling/    detector (Faster R-CNN build/save/load)
@@ -116,7 +116,7 @@ Each core module has a `<module>.md` next to it explaining what it does.
 | IoU, precision at IoU thresholds, AP, mAP | `boxes.py`, `evaluation/metrics.py` |
 | NMS | `inference/nms.py` |
 | Batch prediction pipeline (CPU preprocessing / GPU blurring service) | `inference/batch_pipeline.py` |
-| Data pipeline: user reports, hard negative mining | `data/feedback.py`, `blurring mine` |
+| Data pipeline: user reports, hard negative mining | `data/feedback.py`, `streetshield mine` |
 | Online metric: user reports | `detections.jsonl` gives an auditable record that reports can point at |
 
 ## Deviations from the chapter

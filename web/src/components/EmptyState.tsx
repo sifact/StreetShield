@@ -15,7 +15,7 @@ export function EmptyState({ onFiles, online }: { onFiles: (files: File[]) => vo
       <Dropzone onFiles={onFiles} />
       {!online && (
         <p className="warn small">
-          The API isn’t reachable. Start it with <code>uv run blurring serve</code>.
+          The API isn’t reachable. Start it with <code>uv run streetshield serve</code>.
         </p>
       )}
     </div>

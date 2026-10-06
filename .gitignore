@@ -1,4 +1,4 @@
-# root-anchored so src/blurring/data/ is never ignored
+# root-anchored so src/streetshield/data/ is never ignored
 /data/raw/
 /data/processed/
 /artifacts/

@@ -1,5 +1,5 @@
 [project]
-name = "blurring"
+name = "streetshield"
 version = "0.1.0"
 description = "Street View style face and license-plate blurring system (two-stage detector + batch blurring pipeline)"
 requires-python = ">=3.11,<3.14"
@@ -21,14 +21,14 @@ dev = ["pytest>=8", "httpx>=0.27"]
 onnx = ["onnx>=1.16", "onnxruntime>=1.18"]
 
 [project.scripts]
-blurring = "blurring.cli:main"
+streetshield = "streetshield.cli:main"
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/blurring"]
+packages = ["src/streetshield"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

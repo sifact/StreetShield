@@ -17,7 +17,7 @@ git clone --depth 1 --filter=blob:none --sparse https://github.com/RobertLucian/
 (cd plates && git sparse-checkout set dataset/train dataset/valid)
 ```
 
-Then `uv run blurring prepare-data` writes `data/processed/manifest.json` with seeded 70/15/15 splits per source.
+Then `uv run streetshield prepare-data` writes `data/processed/manifest.json` with seeded 70/15/15 splits per source.
 
 Known limitations:
 - About 85% of the faces wear masks, so lower-face appearance is skewed.

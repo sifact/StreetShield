@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from blurring.evaluation import average_precision, evaluate_detections, match_class
+from streetshield.evaluation import average_precision, evaluate_detections, match_class
 
 GT = [{"boxes": np.array([[0, 0, 10, 10], [20, 20, 30, 30]], dtype=np.float32), "labels": np.array([1, 2])}]
 

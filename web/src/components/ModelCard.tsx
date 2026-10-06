@@ -40,7 +40,7 @@ export function ModelCard({ info }: { info: ModelInfo | null }) {
           </tbody>
         </table>
       ) : (
-        <p className="muted small">No test metrics yet. Run `blurring evaluate`.</p>
+        <p className="muted small">No test metrics yet. Run `streetshield evaluate`.</p>
       )}
       {history.length > 1 && (
         <div className="spark" title="Validation mAP@0.5 per epoch">

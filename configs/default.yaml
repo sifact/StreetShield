@@ -1,4 +1,4 @@
-# Single source of truth for paths and hyperparameters. Override with: blurring <cmd> --config other.yaml
+# Single source of truth for paths and hyperparameters. Override with: streetshield <cmd> --config other.yaml
 seed: 42
 
 paths:
@@ -78,7 +78,7 @@ serving:                                   # HTTP API used by the React UI (web/
   cors_origins: ["http://localhost:5173", "http://127.0.0.1:5173"]
   jpeg_quality: 92
   backend: torch                           # torch (local, MPS/CUDA) | onnx (torch-free, used on Azure)
-  onnx_model: artifacts/model.onnx         # written by `blurring export-onnx`
+  onnx_model: artifacts/model.onnx         # written by `streetshield export-onnx`
   onnx_threads: 0
   onnx_proposals: 300                      # RPN proposals in the export; 1000 -> 300 cut memory, mAP50 -0.0005
   static_dir: null                         # e.g. web/dist to serve the UI from the API process

@@ -1,11 +1,11 @@
 """ONNX backend must match the torch backend. Uses the real exported model, so it skips until
-`blurring export-onnx` has been run (export needs a trained checkpoint and a real image)."""
+`streetshield export-onnx` has been run (export needs a trained checkpoint and a real image)."""
 
 import numpy as np
 import pytest
 import torch
 
-from blurring.config import load_config
+from streetshield.config import load_config
 
 cfg = load_config()
 ONNX = cfg.resolve(cfg.serving.onnx_model)
@@ -14,8 +14,8 @@ pytestmark = pytest.mark.skipif(not (ONNX.exists() and CKPT.exists()), reason="n
 
 
 def test_onnx_matches_torch_on_real_image():
-    from blurring.data import load_manifest, load_rgb
-    from blurring.inference import OnnxPredictor, Predictor
+    from streetshield.data import load_manifest, load_rgb
+    from streetshield.inference import OnnxPredictor, Predictor
 
     record = max(load_manifest(cfg.resolve(cfg.paths.manifest))["test"], key=lambda r: len(r.labels))
     pixels = np.asarray(load_rgb(record.image_path))

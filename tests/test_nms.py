@@ -1,6 +1,6 @@
 import numpy as np
 
-from blurring.inference import batched_nms, nms, postprocess
+from streetshield.inference import batched_nms, nms, postprocess
 
 
 def test_nms_keeps_best_of_overlapping_cluster():
